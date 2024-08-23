@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-
-var moment = require("moment");
+const { DateTime } = require("luxon"); // for date handling
+const moment = require("moment");
 
 const Schema = mongoose.Schema;
 
@@ -18,9 +18,19 @@ AuthorSchema.virtual("name").get(function () {
 
 // 虚拟属性'lifespan'：作者寿命
 AuthorSchema.virtual("lifespan").get(function () {
-  return (
-    this.date_of_death.getYear() - this.date_of_birth.getYear()
-  ).toString();
+  let lifetime_string = "";
+  if (this.date_of_birth) {
+    lifetime_string = DateTime.fromJSDate(this.date_of_birth).toLocaleString(
+      DateTime.DATE_MED
+    );
+  }
+  lifetime_string += " - ";
+  if (this.date_of_death) {
+    lifetime_string += DateTime.fromJSDate(this.date_of_death).toLocaleString(
+      DateTime.DATE_MED
+    );
+  }
+  return lifetime_string;
 });
 
 // 虚拟属性'url'：作者 URL
